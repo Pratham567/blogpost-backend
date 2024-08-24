@@ -2,13 +2,15 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const blogpostRoutes = require('./routes/blogRoutes');
+// npm install cors
+const cors = require('cors');
 
 // CONSTANTS
 const USER_NAME = 'mitUser';
 const PASSWORD = 'mitPassword';
 const DB_NAME = 'merndb'; // TODO: Change this to your database name
 const DB_URI = `mongodb+srv://${USER_NAME}:${PASSWORD}@merncluster.xtjdu.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=mernMongoose`;
-const PORT = 3000;
+const PORT = 3099;
 
 // express app
 const app = express();
@@ -16,6 +18,7 @@ const app = express();
 app.use(express.static('public'));
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cors());
 
 mongoose.connect(DB_URI)
     .then((result) => {
@@ -32,7 +35,7 @@ mongoose.connect(DB_URI)
 
 
 app.get('/', (req, res) => {
-    res.send({ message: 'Blogpost API' });
+    res.send({ message: 'Blogpost API 2.0' });
 });
 
 // blog routes
