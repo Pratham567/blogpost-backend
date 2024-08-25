@@ -4,13 +4,17 @@ const mongoose = require('mongoose');
 const blogpostRoutes = require('./routes/blogRoutes');
 // npm install cors
 const cors = require('cors');
+// Auth deps
+const authRoutes = require('./routes/auth/authRoutes');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 // CONSTANTS
 const USER_NAME = 'mitUser';
 const PASSWORD = 'mitPassword';
 const DB_NAME = 'merndb'; // TODO: Change this to your database name
 const DB_URI = `mongodb+srv://${USER_NAME}:${PASSWORD}@merncluster.xtjdu.mongodb.net/${DB_NAME}?retryWrites=true&w=majority&appName=mernMongoose`;
-const PORT = 3099;
+const PORT = 3000;
 
 // express app
 const app = express();
@@ -33,10 +37,35 @@ mongoose.connect(DB_URI)
     });
 
 
+// middleware -> checkUser
+app.use(cookieParser());
+// 1. create a function to check if the user is logged in or not
+function checkUser(req, res, next) {
+    const token = req.cookies.authtoken;
+    console.log(token);
+    if (token) {
+        jwt.verify(token, 'veryComplexSecret', (err, decodedToken) => {
+            if (err) {
+                console.log(`Token is incorrect: ${err}`);
+                res.locals.user = null;
+            } else {
+                // Token is correct
+                res.locals.user = decodedToken; // {email: "email"}
+            }
+        });
+    } else {
+        res.locals.user = null;
+    }
+    next();
+}
+app.use(checkUser);
 
 app.get('/', (req, res) => {
     res.send({ message: 'Blogpost API 2.0' });
 });
+
+// auth routes
+app.use('/auth', authRoutes);
 
 // blog routes
 app.use('/blogs', blogpostRoutes);
