@@ -1,8 +1,13 @@
 const { Router } = require('express');
 const User = require('../../models/user');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const router = Router();
+
+
+// apply cookie parser middleware
+router.use(cookieParser());
 
 // Signup POST API
 router.post('/signup', (req, res) => {
@@ -18,6 +23,9 @@ router.post('/signup', (req, res) => {
             // Create a token and send it back
             const token = getToken(user.email, user.name);
             // We will not send the token as cookie, as it will be sent in the response body
+
+            // set the token as cookie as well
+            res.cookie('authtoken', token);
             res.status(200).send({ email: obj.email, token });
         })
         .catch(err => {
@@ -59,6 +67,9 @@ router.post('/login', (req, res) => {
                 const token = getToken(user.email, user.name);
                 // We will not send the token as cookie, as it will be sent in the response body
                 // Add token in the response body
+
+                // set the token as cookie as well
+                res.cookie('authtoken', token);
                 res.status(200).send({ email, token });
             }
         })
